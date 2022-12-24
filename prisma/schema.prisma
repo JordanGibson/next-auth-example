@@ -1,0 +1,237 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["clientExtensions"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model account {
+  id                  String  @id @default(cuid())
+  user_id             String
+  type                String
+  provider            String
+  provider_account_id String
+  refresh_token       String? @db.Text
+  access_token        String? @db.Text
+  expires_at          Int?
+  token_type          String?
+  scope               String?
+  id_token            String? @db.Text
+  session_state       String?
+
+  user user @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([provider, provider_account_id])
+}
+
+model build {
+  id                    Int                    @id
+  suite_id              String                 @db.VarChar(255)
+  tenant                String                 @db.VarChar(255)
+  state                 build_status
+  created_at            DateTime               @default(now())
+  updated_at            DateTime               @updatedAt
+  suite                 suite                  @relation(fields: [suite_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  build_comment         build_comment[]
+  build_label           build_label[]
+  test_occurrence       test_occurrence[]
+  build_results_summary build_results_summary?
+}
+
+model build_results_summary {
+  build_id Int   @id
+  passed   Int
+  failed   Int
+  ignored  Int
+  build    build @relation(fields: [build_id], references: [id])
+}
+
+model build_label {
+  id         String   @id @db.VarChar(255)
+  build_id   Int
+  label_id   String   @db.VarChar(255)
+  added_by   user     @relation(fields: [userId], references: [id])
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  build      build    @relation(fields: [build_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  label      label    @relation(fields: [label_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  userId     String   @db.VarChar(255)
+}
+
+model comment {
+  id                      String                    @id @db.VarChar(255)
+  user_id                 String                    @db.VarChar(255)
+  entity_id               String                    @db.VarChar(255)
+  entity_type             String                    @db.VarChar(255)
+  content                 String                    @db.VarChar(255)
+  created_at              DateTime                  @default(now())
+  updated_at              DateTime                  @updatedAt
+  user                    user                      @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  build_comment           build_comment[]
+  suite_comment           suite_comment[]
+  test_comment            test_comment[]
+  test_occurrence_comment test_occurrence_comment[]
+}
+
+model label {
+  id                    String                  @id @db.VarChar(255)
+  name                  String                  @db.VarChar(255)
+  created_at            DateTime                @default(now())
+  updated_at            DateTime                @updatedAt
+  build_label           build_label[]
+  suite_label           suite_label[]
+  test_label            test_label[]
+  test_occurrence_label test_occurrence_label[]
+}
+
+model suite {
+  id              String            @id @db.VarChar(255)
+  description     String            @db.VarChar(255)
+  created_at      DateTime          @default(now())
+  updated_at      DateTime          @updatedAt
+  name            String            @db.VarChar(255)
+  index           Boolean           @default(false)
+  build           build[]
+  suite_comment   suite_comment[]
+  suite_favourite suite_favourite[]
+  suite_label     suite_label[]
+  test            test[]
+}
+
+model suite_comment {
+  id         String   @id @db.VarChar(255)
+  suite_id   String   @db.VarChar(255)
+  comment_id String   @db.VarChar(255)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  comment    comment  @relation(fields: [comment_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  suite      suite    @relation(fields: [suite_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model suite_favourite {
+  id         String   @id @db.VarChar(255)
+  suite_id   String   @db.VarChar(255)
+  user_id    String   @db.VarChar(255)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  suite      suite    @relation(fields: [suite_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  user       user     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model suite_label {
+  id         String   @id @db.VarChar(255)
+  suite_id   String   @db.VarChar(255)
+  label_id   String   @db.VarChar(255)
+  added_by   user     @relation(fields: [userId], references: [id])
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  label      label    @relation(fields: [label_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  suite      suite    @relation(fields: [suite_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  userId     String   @db.VarChar(255)
+}
+
+model test {
+  class_name      String            @id @db.VarChar(255)
+  suite_id        String            @db.VarChar(255)
+  created_at      DateTime          @default(now())
+  updated_at      DateTime          @updatedAt
+  suite           suite             @relation(fields: [suite_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  test_comment    test_comment[]
+  test_label      test_label[]
+  test_occurrence test_occurrence[]
+}
+
+model test_comment {
+  id              String   @id @db.VarChar(255)
+  test_class_name String   @db.VarChar(255)
+  comment_id      String   @db.VarChar(255)
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+  comment         comment  @relation(fields: [comment_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  test            test     @relation(fields: [test_class_name], references: [class_name], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model test_label {
+  id              String   @id @db.VarChar(255)
+  test_class_name String   @db.VarChar(255)
+  label_id        String   @db.VarChar(255)
+  added_by        user     @relation(fields: [userId], references: [id])
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+  label           label    @relation(fields: [label_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  test            test     @relation(fields: [test_class_name], references: [class_name], onDelete: NoAction, onUpdate: NoAction)
+  userId          String   @db.VarChar(255)
+}
+
+model test_occurrence {
+  id                      String                    @id @db.VarChar(255)
+  build_id                Int
+  test_class_name         String                    @db.VarChar(255)
+  status                  String                    @db.VarChar(255)
+  duration                Int
+  href                    String                    @db.VarChar(255)
+  ignored                 Boolean
+  created_at              DateTime                  @default(now())
+  updated_at              DateTime                  @updatedAt
+  build                   build                     @relation(fields: [build_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  test                    test                      @relation(fields: [test_class_name], references: [class_name], onDelete: NoAction, onUpdate: NoAction)
+  test_occurrence_comment test_occurrence_comment[]
+  test_occurrence_label   test_occurrence_label[]
+}
+
+model test_occurrence_comment {
+  id                 String          @id @db.VarChar(255)
+  test_occurrence_id String          @db.VarChar(255)
+  comment_id         String          @db.VarChar(255)
+  created_at         DateTime        @default(now())
+  updated_at         DateTime        @updatedAt
+  comment            comment         @relation(fields: [comment_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  test_occurrence    test_occurrence @relation(fields: [test_occurrence_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model test_occurrence_label {
+  id                 String          @id @db.VarChar(255)
+  test_occurrence_id String          @db.VarChar(255)
+  label_id           String          @db.VarChar(255)
+  added_by           user            @relation(fields: [userId], references: [id])
+  created_at         DateTime        @default(now())
+  updated_at         DateTime        @updatedAt
+  label              label           @relation(fields: [label_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  test_occurrence    test_occurrence @relation(fields: [test_occurrence_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  userId             String          @db.VarChar(255)
+}
+
+model user {
+  id                    String                  @id @db.VarChar(255)
+  email                 String                  @db.VarChar(255)
+  created_at            DateTime                @default(now())
+  updated_at            DateTime                @updatedAt
+  comment               comment[]
+  suite_favourite       suite_favourite[]
+  build_label           build_label[]
+  suite_label           suite_label[]
+  test_label            test_label[]
+  test_occurrence_label test_occurrence_label[]
+  account               account[]
+}
+
+model build_comment {
+  id         String   @id @db.VarChar(255)
+  build_id   Int
+  comment_id String   @db.VarChar(255)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  build      build    @relation(fields: [build_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  comment    comment  @relation(fields: [comment_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+enum build_status {
+  queued
+  running
+  finished
+  deleted
+  unknown
+}

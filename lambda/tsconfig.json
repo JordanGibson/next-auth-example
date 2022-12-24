@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "@tsconfig/node-lts-strictest-esm/tsconfig.json",
+  "compilerOptions": {
+    "target": "es2017",
+    "module": "ESNext",                                /* Specify what module code is generated. */
+    "moduleResolution": "node",                       /* Specify how TypeScript looks up a file from a given module specifier. */
+    "esModuleInterop": true,                             /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables `allowSyntheticDefaultImports` for type compatibility. */
+    "forceConsistentCasingInFileNames": true,            /* Ensure that casing is correct in imports. */
+    "strict": false,                                      /* Enable all strict type-checking options. */
+    // allow unused variables
+    "noUnusedLocals": false,
+    "skipLibCheck": true,                                 /* Skip type checking all .d.ts files. */
+    "exactOptionalPropertyTypes": false,
+    "outDir": "./dist",
+  }
+}
