@@ -1,4 +1,3 @@
-import prisma from "../../../prisma/client";
 import { NextApiRequest, NextApiResponse } from "next";
 import { booleanLiteral } from "@babel/types";
 

@@ -1,7 +1,10 @@
 import "@prisma/client";
 import { env } from "process";
-import { BuildApiFactory, BuildTypeApiFactory, TestOccurrenceApiFactory, } from "teamcity-client";
-import prisma from "./client.js";
+import {
+  BuildApiFactory,
+  BuildTypeApiFactory,
+  TestOccurrenceApiFactory,
+} from "teamcity-client";
 const buildTypeApi = BuildTypeApiFactory();
 const buildApi = BuildApiFactory();
 const testOccurrenceApi = TestOccurrenceApiFactory();
@@ -97,18 +100,18 @@ env["NODE_TLS_REJECT_UNAUTHORIZED"] = "0";
 // }
 // ON CONFLICT (id) DO UPDATE SET <all fields> - id
 await prisma.comment.upsertMany([
-    {
-        id: '1',
-        user_id: '1',
-        entity_id: '1',
-        entity_type: "build",
-        content: "Hello"
-    },
-    {
-        id: '2',
-        user_id: '1',
-        entity_id: '1',
-        entity_type: "has changed",
-        content: "Hello",
-    },
+  {
+    id: "1",
+    user_id: "1",
+    entity_id: "1",
+    entity_type: "build",
+    content: "Hello",
+  },
+  {
+    id: "2",
+    user_id: "1",
+    entity_id: "1",
+    entity_type: "has changed",
+    content: "Hello",
+  },
 ]);

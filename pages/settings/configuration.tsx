@@ -41,8 +41,8 @@ function SuiteIndexTable() {
 
   return (
     <>
-      <div className="text-primary rounded-3xl p-5">
-        <table className="table-auto min-w-full border border-2 border-slate-900">
+      <div className="text-base rounded-3xl">
+        <table className="table min-w-full">
           <thead>
             <tr className={"text-3xl"}>
               <th>Suite</th>
@@ -54,26 +54,18 @@ function SuiteIndexTable() {
               .sort((a, b) => a.name.localeCompare(b.name))
               .map((suite, i) => (
                 <tr
-                  className={`border border-slate-900 text-sm ${
+                  className={`hover text-sm ${
                     i % 2 == 0 ? "" : ""
-                  }`}
+                  } cursor-pointer`}
+                  onClick={invertShouldIndexSuite(suite)}
                 >
+                  <td>{suite.name}</td>
                   <td>
-                    <label className={"mx-5"} key={suite.id}>
-                      {suite.name}
-                    </label>
-                  </td>
-                  <td>
-                    <div className="form-control">
-                      <label className="label cursor-pointer mx-auto">
-                        <input
-                          type="checkbox"
-                          className="checkbox checkbox-success"
-                          checked={suite.index}
-                          onChange={invertShouldIndexSuite(suite)}
-                        />
-                      </label>
-                    </div>
+                    <input
+                      type="checkbox"
+                      checked={suite.index}
+                      className="checkbox"
+                    />
                   </td>
                 </tr>
               ))}
@@ -87,17 +79,16 @@ function SuiteIndexTable() {
 export default function ConfigurationPage() {
   return (
     <>
-      <div className="grid grid-cols-5 p-10 mx-auto text-gray-400 min-h-screen">
-        <div className="col-span-1 block overflow-y-auto border-r border-white">
-          <div className="text-2xl font-semibold text-white">Configuration</div>
-          <ul>
+      <div className="grid grid-cols-5 p-10">
+        <div className="col-span-1">
+          <ul className="menu flex flex-col p-0 px-4">
+            <li className="menu-title">
+              <span>Configuration</span>
+            </li>
             <li>
-              <Link
-                className="block border-l pl-4 -ml-px hover:border-slate-500 border-slate-100 text-slate-400 hover:text-slate-300"
-                href={"#suites"}
-              >
-                Suites
-              </Link>
+              <a href="#suites" className="flex gap-4">
+                <span className="flex-1">Suites</span>
+              </a>
             </li>
           </ul>
         </div>

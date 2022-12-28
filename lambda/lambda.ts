@@ -10,8 +10,8 @@ import {
   TestOccurrenceApiFactory,
 } from "teamcity-client";
 import { createLocator } from "./createLocator.js";
-import prisma from "../prisma/client.js";
 import * as async from "async";
+import prisma from "../prisma";
 
 const buildTypeApi = BuildTypeApiFactory();
 const buildApi = BuildApiFactory();
@@ -33,9 +33,6 @@ async function getAllSuitesFromTeamCity(): Promise<suite[]> {
 
   return prisma.suite.findMany();
 }
-
-const suites = await getAllSuitesFromTeamCity();
-const suitesToIndex = suites.filter((suite) => suite.index);
 
 function stripFailedFromClassName(name: string) {
   return name.replace(RegExp(".*?: (.*)"), "$1");
@@ -147,8 +144,14 @@ async function indexSuite(suite: suite): Promise<IndexedSuite> {
   };
 }
 
-let indexedSuites: IndexedSuite[] = await async.mapLimit(
-  suitesToIndex,
-  5,
-  indexSuite
-);
+async function indexTeamCity() {
+  const suites = await getAllSuitesFromTeamCity();
+  const suitesToIndex = suites.filter((suite) => suite.index);
+  let indexedSuites: IndexedSuite[] = await async.mapLimit(
+    suitesToIndex,
+    5,
+    indexSuite
+  );
+}
+
+indexTeamCity().then(() => console.log("done"));

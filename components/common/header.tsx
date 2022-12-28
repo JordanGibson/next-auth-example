@@ -6,24 +6,21 @@ import router, { useRouter } from "next/router";
 import Link from "next/link";
 import ThemeSwitch from "./themeSwitch";
 
-const navigation = [
-  { name: "Suites", href: "suites", current: true },
-  { name: "Dashboard", href: "dashboard", current: false },
-  { name: "Projects", href: "projects", current: false },
-  { name: "Calendar", href: "calendar", current: false },
-];
-
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(" ");
 }
 
 const SignInButton = (props: {
   onClick: () => Promise<SignInResponse | undefined>;
-}) => <button onClick={props.onClick}>Sign In</button>;
+}) => (
+  <button className={"btn normal-case gap-1"} onClick={props.onClick}>
+    Sign In
+  </button>
+);
 
 function ProfileWithDropdown(props: { session: Session }) {
   return (
-    <Menu as="div" className="relative ml-3">
+    <Menu as="div" className="relative ml-3 bg-base-100">
       <div>
         <Menu.Button className="flex rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2">
           <span className="sr-only">Open user menu</span>
@@ -46,14 +43,14 @@ function ProfileWithDropdown(props: { session: Session }) {
         leaveFrom="transform opacity-100 scale-100"
         leaveTo="transform opacity-0 scale-95"
       >
-        <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+        <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md py-1 shadow-lg ring-1 ring-black ring-opacity-5 bg-base-100 focus:outline-none">
           <Menu.Item>
             {({ active }) => (
               <a
                 href="components/common/header.js#"
                 className={classNames(
                   active ? "" : "",
-                  "block px-4 py-2 text-sm"
+                  "block px-4 py-2 text-sm hover:bg-base-200"
                 )}
               >
                 Your Profile
@@ -66,7 +63,7 @@ function ProfileWithDropdown(props: { session: Session }) {
                 href="components/common/header.js#"
                 className={classNames(
                   active ? "" : "",
-                  "block px-4 py-2 text-sm"
+                  "block px-4 py-2 text-sm hover:bg-base-200"
                 )}
               >
                 Settings
@@ -79,7 +76,7 @@ function ProfileWithDropdown(props: { session: Session }) {
                 onClick={() => signOut()}
                 className={classNames(
                   active ? "" : "",
-                  "block px-4 py-2 text-sm"
+                  "block px-4 py-2 text-sm hover:bg-base-200"
                 )}
               >
                 Sign out
@@ -95,7 +92,6 @@ function ProfileWithDropdown(props: { session: Session }) {
 export default function Navbar() {
   let { data: session } = useSession();
 
-  const [activeHeader, setActiveHeader] = useState("");
   const router = useRouter();
 
   let route = router.route.split("/")[1].toLowerCase();
@@ -145,9 +141,6 @@ export default function Navbar() {
                               "px-3 py-2 rounded-md text-sm font-medium"
                             )}
                             aria-current={item.current ? "page" : undefined}
-                            onClick={() => {
-                              setActiveHeader(item.name);
-                            }}
                           >
                             {item.name}
                           </Link>

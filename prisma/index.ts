@@ -1,10 +1,11 @@
-import { Prisma, PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient, PrismaPromise } from "@prisma/client";
 
 const basePrisma = new PrismaClient();
-const prisma = new PrismaClient().$extends({
+
+export const prismaExtensionConfig = {
   model: {
     comment: {
-      upsertMany: async (data: Prisma.commentCreateManyInput[]) => {
+      async upsertMany(data: Prisma.commentCreateManyInput[]) {
         return data.map(async (comment) => {
           return await basePrisma.comment.upsert({
             where: { id: comment.id },
@@ -50,7 +51,23 @@ const prisma = new PrismaClient().$extends({
       },
     },
   },
-});
-console.log("Created prisma client");
+};
+const extendedClient = basePrisma.$extends(prismaExtensionConfig);
+
+declare global {
+  var prisma: typeof extendedClient;
+}
+
+let prisma: typeof extendedClient;
+
+if (process.env.NODE_ENV === "production") {
+  prisma = new PrismaClient().$extends(prismaExtensionConfig);
+} else {
+  if (!global.prisma) {
+    global.prisma = new PrismaClient().$extends(prismaExtensionConfig);
+  }
+
+  prisma = global.prisma;
+}
 
 export default prisma;

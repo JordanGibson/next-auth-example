@@ -48,7 +48,8 @@
     "sort-by": "^1.2.0",
     "styled-components": "^5.3.6",
     "swr": "^2.0.0",
-    "teamcity-client": "file:../../../Downloads/ts-fetch-client"
+    "teamcity-client": "file:../../../Downloads/ts-fetch-client",
+    "theme-change": "^2.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.2",
