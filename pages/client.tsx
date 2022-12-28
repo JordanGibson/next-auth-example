@@ -1,8 +1,9 @@
-import Layout from "../components/layout"
+import Button from "@mui/material/Button";
 
 export default function ClientPage() {
   return (
-    <Layout>
+    <>
+      <Button variant="contained">Hello World!</Button>
       <h1>Client Side Rendering</h1>
       <p>
         This page uses the <strong>useSession()</strong> React Hook in the{" "}
@@ -22,6 +23,6 @@ export default function ClientPage() {
         The disadvantage of <strong>useSession()</strong> is that it requires
         client side JavaScript.
       </p>
-    </Layout>
-  )
+    </>
+  );
 }

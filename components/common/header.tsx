@@ -4,6 +4,7 @@ import { signIn, SignInResponse, signOut, useSession } from "next-auth/react";
 import { Session } from "next-auth";
 import router, { useRouter } from "next/router";
 import Link from "next/link";
+import ThemeSwitch from "./themeSwitch";
 
 const navigation = [
   { name: "Suites", href: "suites", current: true },
@@ -18,20 +19,13 @@ function classNames(...classes: string[]) {
 
 const SignInButton = (props: {
   onClick: () => Promise<SignInResponse | undefined>;
-}) => (
-  <button
-    className="rounded-lg px-4 py-2 bg-blue-500 text-white font-bold hover:bg-blue-700"
-    onClick={props.onClick}
-  >
-    Sign In
-  </button>
-);
+}) => <button onClick={props.onClick}>Sign In</button>;
 
 function ProfileWithDropdown(props: { session: Session }) {
   return (
     <Menu as="div" className="relative ml-3">
       <div>
-        <Menu.Button className="flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
+        <Menu.Button className="flex rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2">
           <span className="sr-only">Open user menu</span>
           <img
             className="h-8 w-8 rounded-full"
@@ -52,14 +46,14 @@ function ProfileWithDropdown(props: { session: Session }) {
         leaveFrom="transform opacity-100 scale-100"
         leaveTo="transform opacity-0 scale-95"
       >
-        <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+        <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
           <Menu.Item>
             {({ active }) => (
               <a
-                href="#"
+                href="components/common/header.js#"
                 className={classNames(
-                  active ? "bg-gray-100" : "",
-                  "block px-4 py-2 text-sm text-gray-700"
+                  active ? "" : "",
+                  "block px-4 py-2 text-sm"
                 )}
               >
                 Your Profile
@@ -69,10 +63,10 @@ function ProfileWithDropdown(props: { session: Session }) {
           <Menu.Item>
             {({ active }) => (
               <a
-                href="#"
+                href="components/common/header.js#"
                 className={classNames(
-                  active ? "bg-gray-100" : "",
-                  "block px-4 py-2 text-sm text-gray-700"
+                  active ? "" : "",
+                  "block px-4 py-2 text-sm"
                 )}
               >
                 Settings
@@ -84,8 +78,8 @@ function ProfileWithDropdown(props: { session: Session }) {
               <a
                 onClick={() => signOut()}
                 className={classNames(
-                  active ? "bg-gray-100" : "",
-                  "block px-4 py-2 text-sm text-gray-700"
+                  active ? "" : "",
+                  "block px-4 py-2 text-sm"
                 )}
               >
                 Sign out
@@ -104,29 +98,29 @@ export default function Navbar() {
   const [activeHeader, setActiveHeader] = useState("");
   const router = useRouter();
 
+  let route = router.route.split("/")[1].toLowerCase();
   const navigation = [
     {
       name: "Suites",
       href: "suites",
-      current: router.route.split("/")[1].toLowerCase() === "suites",
+      current: route === "suites",
     },
     {
       name: "Dashboard",
       href: "dashboard",
-      current: router.route.split("/")[1].toLowerCase() === "dashboard",
+      current: route === "dashboard",
     },
     {
       name: "Projects",
       href: "projects",
-      current: router.route.split("/")[1].toLowerCase() === "projects",
+      current: route === "projects",
     },
     {
       name: "Calendar",
       href: "calendar",
-      current: router.route.split("/")[1].toLowerCase() === "calendar",
+      current: route === "calendar",
     },
   ];
-
   return (
     <>
       <div className="sticky top-0 z-40 w-full backdrop-blur flex-none transition-colors duration-500 lg:z-50 border-b border-slate-50/[0.06] bg-transparent">
@@ -136,13 +130,9 @@ export default function Navbar() {
               <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
                 <div className="relative flex h-16 items-center justify-between">
                   <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
-                    <div className="flex flex-shrink-0 items-center">
-                      <img
-                        className="h-8 w-auto"
-                        src={"/Logo.svg"}
-                        alt="Smart"
-                      />
-                    </div>
+                    <p className="text-center my-auto font-bold text-xl">
+                      Smart
+                    </p>
                     <div className="hidden sm:ml-6 sm:block">
                       <div className="flex space-x-4">
                         {navigation.map((item) => (
@@ -151,9 +141,7 @@ export default function Navbar() {
                             href={item.href}
                             passHref
                             className={classNames(
-                              item.current
-                                ? "bg-gray-900 text-white"
-                                : "text-gray-300 hover:bg-gray-700 hover:text-white",
+                              item.current ? "text-primary-f" : "",
                               "px-3 py-2 rounded-md text-sm font-medium"
                             )}
                             aria-current={item.current ? "page" : undefined}
@@ -167,12 +155,13 @@ export default function Navbar() {
                       </div>
                     </div>
                   </div>
+                  <ThemeSwitch />
                   <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
                     {session?.user ? (
                       <ProfileWithDropdown session={session} />
                     ) : (
                       <>
-                        <SignInButton onClick={() => signIn("github")} />)
+                        <SignInButton onClick={() => signIn("github")} />
                       </>
                     )}
                   </div>
