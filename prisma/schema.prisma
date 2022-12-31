@@ -52,6 +52,7 @@ model User {
   suite_label           suite_label[]
   test_label            test_label[]
   test_occurrence_label test_occurrence_label[]
+  theme                 theme                   @default(dark)
 
   @@map("users")
 }
@@ -66,17 +67,26 @@ model VerificationToken {
 }
 
 model build {
-  id                    Int                    @id
-  suite_id              String                 @db.VarChar(255)
-  tenant                String                 @db.VarChar(255)
-  state                 build_status
-  created_at            DateTime               @default(now())
-  updated_at            DateTime               @updatedAt
-  suite                 suite                  @relation(fields: [suite_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  build_comment         build_comment[]
-  build_label           build_label[]
-  test_occurrence       test_occurrence[]
-  build_results_summary build_results_summary?
+  id              Int                    @id
+  suite_id        String                 @db.VarChar(255)
+  tenant          String                 @db.VarChar(255)
+  state           build_status
+  created_at      DateTime               @default(now())
+  updated_at      DateTime               @updatedAt
+  suite           suite                  @relation(fields: [suite_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  build_comment   build_comment[]
+  build_label     build_label[]
+  test_occurrence test_occurrence[]
+  summary         build_results_summary? @relation("build_results_summary")
+  build_details   build_details?
+}
+
+model build_details {
+  build_id   Int      @id
+  start_date DateTime
+  end_date   DateTime
+  duration   Int?
+  build      build    @relation(fields: [build_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model build_results_summary {
@@ -84,7 +94,7 @@ model build_results_summary {
   passed   Int
   failed   Int
   ignored  Int
-  build    build @relation(fields: [build_id], references: [id])
+  build    build @relation("build_results_summary", fields: [build_id], references: [id])
 }
 
 model build_label {
@@ -258,4 +268,21 @@ enum build_status {
   finished
   deleted
   unknown
+}
+
+enum theme {
+  light
+  dark
+  cupcake
+  synthwave
+  halloween
+  aqua
+  pastel
+  black
+  luxury
+  dracula
+  acid
+  night
+  coffee
+  winter
 }

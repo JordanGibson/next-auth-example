@@ -34,3 +34,7 @@ iframe {
 .st0{clip-path:url(#SVGID_2_);fill:#FFFFFF;}
 .st1{fill:#FFFFFF;}
 
+.primary-text{
+  color: hsla(var(--bc) / var(--tw-text-opacity), 1);
+}
+

@@ -13,8 +13,8 @@ export default async function handler(
       await put(req, res);
       break;
     default:
-      res.status(404).send({ error: "invalid http method" });
-      break;
+      res.setHeader('Allow', ['GET', 'PUT'])
+      res.status(405).end(`Method ${req.method} Not Allowed`)
   }
 }
 

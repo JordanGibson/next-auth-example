@@ -1,7 +1,7 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import GithubProvider from "next-auth/providers/github";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import prisma from "../../../prisma";
+import prisma from "../../../prisma/client";
 // import AppleProvider from "next-auth/providers/apple"
 // import EmailProvider from "next-auth/providers/email"
 
@@ -63,9 +63,10 @@ export const authOptions: NextAuthOptions = {
       token.userRole = "admin";
       return token;
     },
-  },
-  pages: {
-    signIn: "/auth/signin",
+    async session({ session, token, user }) {
+      session.user.id = token.sub;
+      return session;
+    },
   },
 };
 

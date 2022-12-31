@@ -20,9 +20,9 @@ const SignInButton = (props: {
 
 function ProfileWithDropdown(props: { session: Session }) {
   return (
-    <Menu as="div" className="relative ml-3 bg-base-100">
+    <Menu as="div" className="relative ml-3">
       <div>
-        <Menu.Button className="flex rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2">
+        <Menu.Button className="flex rounded-full text-sm focus:outline-none hover:ring-white hover:ring-1 hover:ring-offset-2">
           <span className="sr-only">Open user menu</span>
           <img
             className="h-8 w-8 rounded-full"
@@ -43,7 +43,7 @@ function ProfileWithDropdown(props: { session: Session }) {
         leaveFrom="transform opacity-100 scale-100"
         leaveTo="transform opacity-0 scale-95"
       >
-        <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md py-1 shadow-lg ring-1 ring-black ring-opacity-5 bg-base-100 focus:outline-none">
+        <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md py-1 shadow-lg ring-1 ring-black ring-opacity-5 bg-base-100 border focus:outline-none">
           <Menu.Item>
             {({ active }) => (
               <a
@@ -60,7 +60,7 @@ function ProfileWithDropdown(props: { session: Session }) {
           <Menu.Item>
             {({ active }) => (
               <a
-                href="components/common/header.js#"
+                href="/settings/configuration/"
                 className={classNames(
                   active ? "" : "",
                   "block px-4 py-2 text-sm hover:bg-base-200"
@@ -98,22 +98,22 @@ export default function Navbar() {
   const navigation = [
     {
       name: "Suites",
-      href: "suites",
+      href: "/suites",
       current: route === "suites",
     },
     {
       name: "Dashboard",
-      href: "dashboard",
+      href: "/dashboard",
       current: route === "dashboard",
     },
     {
       name: "Projects",
-      href: "projects",
+      href: "/projects",
       current: route === "projects",
     },
     {
       name: "Calendar",
-      href: "calendar",
+      href: "/calendar",
       current: route === "calendar",
     },
   ];
@@ -123,8 +123,8 @@ export default function Navbar() {
         <Disclosure as="nav" className="">
           {({ open }) => (
             <>
-              <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
-                <div className="relative flex h-16 items-center justify-between">
+              <div className="mx-auto max-w-7xl px-2 ">
+                <div className="relative flex h-16 items-center">
                   <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
                     <p className="text-center my-auto font-bold text-xl">
                       Smart

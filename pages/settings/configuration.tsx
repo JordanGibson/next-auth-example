@@ -54,6 +54,7 @@ function SuiteIndexTable() {
               .sort((a, b) => a.name.localeCompare(b.name))
               .map((suite, i) => (
                 <tr
+                    key={i}
                   className={`hover text-sm ${
                     i % 2 == 0 ? "" : ""
                   } cursor-pointer`}
@@ -65,6 +66,7 @@ function SuiteIndexTable() {
                       type="checkbox"
                       checked={suite.index}
                       className="checkbox"
+                      readOnly
                     />
                   </td>
                 </tr>
