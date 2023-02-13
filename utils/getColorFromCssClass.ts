@@ -10,4 +10,7 @@ export function getColorFromCssClass(cssClass: string): string {
     return styler(`.${cssClass}`).get(['color'])['color'];
 }
 
+export default function getColor(cssClass: string): string {
+    return getBgColorFromCssClass(cssClass) ?? getColorFromCssClass(cssClass);
+}
 

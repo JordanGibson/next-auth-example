@@ -1,4 +1,4 @@
-import {Prisma, PrismaClient, PrismaPromise} from "@prisma/client";
+import {Prisma, PrismaClient} from "@prisma/client";
 
 const basePrisma = new PrismaClient();
 
@@ -37,19 +37,6 @@ export const prismaExtensionConfig = {
                 });
             },
         },
-        build_results_summary: {
-            upsertMany: async (
-                data: Prisma.build_results_summaryCreateManyInput[]
-            ) => {
-                return data.map(async (build_results_summary) => {
-                    return await basePrisma.build_results_summary.upsert({
-                        where: {build_id: build_results_summary.build_id},
-                        update: build_results_summary,
-                        create: build_results_summary,
-                    });
-                });
-            },
-        },
         build_details: {
             upsertMany: async (data: Prisma.build_detailsCreateManyInput[]) => {
                 return data.map(async (build_details) => {
@@ -59,6 +46,25 @@ export const prismaExtensionConfig = {
                         create: build_details,
                     });
                 });
+            }
+        },
+        tenant: {
+            upsertMany: async (data: Prisma.tenantCreateManyInput[]) => {
+                for (const tenant of data) {
+                    if(tenant) {
+                        const update: Prisma.tenantUpdateInput = {};
+                        Object.entries(tenant).filter(x => x[0] !== 'id').forEach(x => {
+                            if (x[1] != null) {
+                                update[x[0]] = x[1];
+                            }
+                        });
+                        await basePrisma.tenant.upsert({
+                            where: { id: tenant.id },
+                            create: tenant,
+                            update,
+                        });
+                    }
+                }
             }
         }
     },

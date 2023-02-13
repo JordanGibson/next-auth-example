@@ -27,7 +27,6 @@ async function get(req: NextApiRequest, res: NextApiResponse) {
             }
         },
         include: {
-            summary: true,
             build_details: true
         },
     });

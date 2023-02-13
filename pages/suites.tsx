@@ -1,174 +1,112 @@
-import useSWR from "swr";
-import {build, build_details, build_results_summary, suite} from "@prisma/client";
-import {getFetcher} from "./_swrFetcher";
-import {
-    CategoryScale,
-    Chart, ChartData,
-    ChartDataset,
-    ChartOptions,
-    Legend,
-    LinearScale,
-    LineElement,
-    PointElement,
-    Title,
-    Tooltip
-} from "chart.js";
-import {Line} from "react-chartjs-2";
+import useSWR from 'swr';
+import { getFetcher } from './_swrFetcher';
+import React from 'react';
+import { suite_favourite } from './api/suite';
+import { Star, StarBorderOutlined } from '@mui/icons-material';
+import { motion } from 'framer-motion';
+import {build_state, confidence_level} from '@prisma/client';
+import {SuiteSummary} from "./api/suite/summary/[id]";
+import classNames from "classnames";
 import moment from "moment";
-import {getBgColorFromCssClass, getColorFromCssClass} from "../utils/getColorFromCssClass";
-import {useEffect, useRef} from "react";
-import useSWRImmutable from "swr/immutable";
 
-function SuiteCard({suite}: { suite: suite }) {
+const FavouriteButton = ({ isFavourite }: { isFavourite: boolean }) => {
+    return isFavourite ? (
+        <motion.div transition={{ duration: 0.1 }}>
+            <Star className={'fill-accent'} />
+        </motion.div>
+    ) : (
+        <motion.div animate={{ rotate: 72 }} transition={{ duration: 0.1 }}>
+            <StarBorderOutlined className={'fill-accent'} />
+        </motion.div>
+    );
+};
 
-    const {
-        data,
-        error,
-        isLoading,
-    } = useSWR("/api/build/" + suite.id, getFetcher<(build & { summary: build_results_summary, build_details: build_details })[]>());
+function DoubleFailureStat({build, title}: { build: any, title: string }) {
+    const value = build?.state === build_state.finished ? build?.double_failures.length : build?.status;
+    return <div className="stat">
+        <div className="stat-title">{title}</div>
+        <div
+            className={classNames("stat-value", value === 0 ? "text-success" : "text-error")}>{value}</div>
+        <div className="stat-desc">Double Failures</div>
+    </div>;
+}
 
-    const labelToCssClass = (label?: string): string => {
-        switch (label?.toLowerCase()) {
-            case "passed":
-                return "bg-success";
-            case "failed":
-                return "bg-error";
-            case "ignored":
-                return "bg-neutral-content";
-        }
-        return "bg-neutral-content";
-    }
-
-    const chartRef = useRef<Chart>();
-    useEffect(() => {
-        const observer = new MutationObserver(() => {
-            if (chartRef.current?.options)
-                chartRef.current.options = getChartOptions();
-            if (chartRef.current?.data) {
-                let data: ChartData = chartRef.current.data;
-                chartRef.current.data.datasets = data.datasets.map(dataset => {
-                    return {
-                        ...dataset,
-                        borderColor: getBgColorFromCssClass(labelToCssClass(dataset.label)),
-                        backgroundColor: getBgColorFromCssClass(labelToCssClass(dataset.label)),
-                    }
-                })
-            }
-            chartRef.current?.update('none');
-        });
-
-        observer.observe(document.documentElement, {
-            attributes: true,
-            attributeFilter: ['data-theme']
-        });
-
-        return () => observer.disconnect();
-    }, [chartRef]);
-
-    const labels = data?.map((build) => build.build_details.end_date).map(x => moment(x).format("DD/MM")) ?? [];
-
-    function getChartOptions(): ChartOptions<"line"> {
-        return {
-            responsive: true,
-            aspectRatio: 4,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'top' as const,
-                    labels: {
-                        color: getColorFromCssClass("primary-text"),
-                    },
-                },
-                title: {
-                    display: false,
-                    text: 'Chart.js Line Chart',
-                    color: getColorFromCssClass("primary-text"),
-                    font: {
-                        weight: "normal",
-                    }
-                },
-            },
-            scales: {
-                x: {
-                    ticks: {
-                        color: getColorFromCssClass("primary-text"),
-                    }
-                },
-                y: {
-                    ticks: {
-                        color: getColorFromCssClass("primary-text"),
-                    }
-                }
-            },
-            elements: {
-                line: {
-                    tension: 0.01,
-                },
-                point: {
-                    pointStyle: "circle"
-                }
-            }
-        };
-    }
-
-    const options = getChartOptions();
-
-    function getDataset(label: string, cssClass: string, value: keyof build_results_summary): ChartDataset<'line'> {
-        return {
-            label: label,
-            data: data?.map((x) => x.summary ? x.summary[value] : null) ?? new Array(),
-            borderColor: getBgColorFromCssClass(cssClass),
-            backgroundColor: getBgColorFromCssClass(cssClass),
-        };
-    }
-
-    function getChartData(): ChartData<'line'> {
-        return {
-            labels,
-            datasets: [
-                getDataset('Passed', "bg-success", "passed"),
-                getDataset('Failed', "bg-error", "failed"),
-                getDataset("Ignored", "bg-neutral-content", "ignored"),
-            ],
-        };
-    }
-
-    const chartData = getChartData();
-
-    if (error) return <div>failed to load</div>;
-    if (isLoading) return <progress className="progress w-56"></progress>;
+function SuiteCard({ suite, onClick }: { suite: suite_favourite; onClick: () => Promise<void> }) {
+    const { data, error, isLoading } = useSWR(
+        '/api/suite/summary/' + suite.id,
+        getFetcher<SuiteSummary>()
+    );
+    const prodBuild = data?.find(x => x.confidence_level === confidence_level.prod);
+    const previewBuild = data?.find(x => x.confidence_level === confidence_level.preview);
     return (
-        <div className={"card max-w-screen bg-base-200 mx-5 my-3 rounded p-5"}>
-            <div>{suite.name}</div>
-            <span className={"relative"}>
-                <Line ref={chartRef} data={chartData} options={options}/>
-            </span>
+        <div className={'p-5 bg-base-200 m-3'}>
+            <div className={'flex flex-row'}>
+                <div>{suite.name}</div>
+                <div className={'mx-2'} onClick={onClick}>
+                    <FavouriteButton isFavourite={suite.isFavourite}/>
+                </div>
+            </div>
+            <div className={"my-2"}>
+                <div className="stats shadow mx-5">
+                    <DoubleFailureStat build={prodBuild} title={"Prod"}/>
+                </div>
+                <div className="stats shadow mx-5">
+                    <DoubleFailureStat build={previewBuild} title={"Preview"}/>
+                </div>
+            </div>
         </div>
     );
 }
 
 export default function Suites() {
-    Chart.register(
-        CategoryScale,
-        LinearScale,
-        PointElement,
-        LineElement,
-        Title,
-        Tooltip,
-        Legend
-    )
-    const {data, error, isLoading} = useSWRImmutable(
-        "/api/suite",
-        getFetcher<suite[]>()
-    );
+    async function putFavouriteSuite(suites: suite_favourite[], suite: suite_favourite) {
+        await fetch(`/api/suite/favourite`, {
+            method: 'PUT',
+            body: JSON.stringify({
+                suite: suite.id,
+                isFavourite: !suite.isFavourite,
+            }),
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        return toggleFavourite(suites, suite);
+    }
 
-    if (error) return <div>failed to load</div>;
-    if (isLoading) return <div>loading...</div>;
+    const {
+        data: suites,
+        error,
+        isLoading,
+        mutate,
+    } = useSWR<suite_favourite[]>('/api/suite/indexed', getFetcher<suite_favourite[]>());
+    if (error) {
+        console.log('Error');
+        return <div>failed to load</div>;
+    }
+    if (isLoading) {
+        console.log('Loading');
+        return <div>loading...</div>;
+    }
+
+    async function onClickHandler(suite: suite_favourite) {
+        await mutate(async () => putFavouriteSuite(suites!, suite), {
+            optimisticData: () => toggleFavourite(suites!, suite),
+        });
+    }
+
+    function toggleFavourite(suites: suite_favourite[], suite: suite_favourite): suite_favourite[] {
+        return suites!.map(x =>
+            x.id === suite.id ? { ...suite, isFavourite: !suite.isFavourite } : x
+        );
+    }
+
     return (
-        <div className={"max-w-full"}>
-            {data!.filter(x => x.index).map((suite) => (
-                <SuiteCard suite={suite}/>
-            ))}
+        <div className={'max-w-full min-w-fit'}>
+            <div className={'px-5 py-2'}>
+                {suites?.map((suite: suite_favourite) => (
+                    <SuiteCard suite={suite} onClick={() => onClickHandler(suite)} />
+                ))}
+            </div>
         </div>
     );
 }

@@ -9,32 +9,3 @@ body {
   margin: 0 auto;
 }
 
-li,
-p {
-  line-height: 1.5rem;
-}
-
-a {
-  font-weight: 500;
-}
-
-hr {
-  border: 1px solid #ddd;
-}
-
-iframe {
-  background: #ccc;
-  border: 1px solid #ccc;
-  height: 10rem;
-  width: 100%;
-  border-radius: 0.5rem;
-  filter: invert(1);
-}
-
-.st0{clip-path:url(#SVGID_2_);fill:#FFFFFF;}
-.st1{fill:#FFFFFF;}
-
-.primary-text{
-  color: hsla(var(--bc) / var(--tw-text-opacity), 1);
-}
-

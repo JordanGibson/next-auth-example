@@ -47,7 +47,7 @@ function ProfileWithDropdown(props: { session: Session }) {
           <Menu.Item>
             {({ active }) => (
               <a
-                href="components/common/header.js#"
+                href="components/common/navbar.js#"
                 className={classNames(
                   active ? "" : "",
                   "block px-4 py-2 text-sm hover:bg-base-200"

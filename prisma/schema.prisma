@@ -67,56 +67,49 @@ model VerificationToken {
 }
 
 model build {
-  id              Int                    @id
-  suite_id        String                 @db.VarChar(255)
-  tenant          String                 @db.VarChar(255)
-  state           build_status
-  created_at      DateTime               @default(now())
-  updated_at      DateTime               @updatedAt
-  suite           suite                  @relation(fields: [suite_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  build_comment   build_comment[]
-  build_label     build_label[]
-  test_occurrence test_occurrence[]
-  summary         build_results_summary? @relation("build_results_summary")
-  build_details   build_details?
+  id                   Int                    @id
+  suite_id             String                 @db.VarChar(255)
+  tenant               tenant?                @relation(fields: [tenantId], references: [id])
+  state                build_state
+  status               String?
+  suite                suite                  @relation(fields: [suite_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  build_comment        build_comment[]
+  build_label          build_label[]
+  test_occurrence      test_occurrence[]
+  tenantId             String?                @db.VarChar(255)
+  build_double_failure build_double_failure[]
+  build_details        build_details          @relation(fields: [id], references: [build_id], onDelete: Cascade)
 }
 
 model build_details {
-  build_id   Int      @id
-  start_date DateTime
-  end_date   DateTime
+  build_id   Int       @id @unique
+  start_date DateTime?
+  end_date   DateTime?
   duration   Int?
-  build      build    @relation(fields: [build_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-}
-
-model build_results_summary {
-  build_id Int   @id
-  passed   Int
-  failed   Int
-  ignored  Int
-  build    build @relation("build_results_summary", fields: [build_id], references: [id])
+  passed     Int?
+  failed     Int?
+  ignored    Int?
+  branch     String?
+  build      build?
 }
 
 model build_label {
-  id         String   @id @db.VarChar(255)
-  build_id   Int
-  label_id   String   @db.VarChar(255)
-  added_by   User     @relation(fields: [userId], references: [id])
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-  build      build    @relation(fields: [build_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  label      label    @relation(fields: [label_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  userId     String   @db.VarChar(255)
+  build_id Int
+  label_id String @db.VarChar(255)
+  added_by User   @relation(fields: [userId], references: [id])
+  build    build  @relation(fields: [build_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  label    label  @relation(fields: [label_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  userId   String @db.VarChar(255)
+
+  @@id([build_id, label_id, userId])
 }
 
 model comment {
-  id                      String                    @id @db.VarChar(255)
+  id                      String                    @id @default(cuid()) @db.VarChar(255)
   user_id                 String                    @db.VarChar(255)
   entity_id               String                    @db.VarChar(255)
   entity_type             String                    @db.VarChar(255)
   content                 String                    @db.VarChar(255)
-  created_at              DateTime                  @default(now())
-  updated_at              DateTime                  @updatedAt
   user                    User                      @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   build_comment           build_comment[]
   suite_comment           suite_comment[]
@@ -125,10 +118,8 @@ model comment {
 }
 
 model label {
-  id                    String                  @id @db.VarChar(255)
+  id                    String                  @id @default(cuid()) @db.VarChar(255)
   name                  String                  @db.VarChar(255)
-  created_at            DateTime                @default(now())
-  updated_at            DateTime                @updatedAt
   build_label           build_label[]
   suite_label           suite_label[]
   test_label            test_label[]
@@ -138,8 +129,6 @@ model label {
 model suite {
   id              String            @id @db.VarChar(255)
   description     String            @db.VarChar(255)
-  created_at      DateTime          @default(now())
-  updated_at      DateTime          @updatedAt
   name            String            @db.VarChar(255)
   index           Boolean           @default(false)
   build           build[]
@@ -150,68 +139,62 @@ model suite {
 }
 
 model suite_comment {
-  id         String   @id @db.VarChar(255)
-  suite_id   String   @db.VarChar(255)
-  comment_id String   @db.VarChar(255)
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-  comment    comment  @relation(fields: [comment_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  suite      suite    @relation(fields: [suite_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  suite_id   String  @db.VarChar(255)
+  comment_id String  @db.VarChar(255)
+  comment    comment @relation(fields: [comment_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  suite      suite   @relation(fields: [suite_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([suite_id, comment_id])
 }
 
 model suite_favourite {
-  id         String   @id @db.VarChar(255)
-  suite_id   String   @db.VarChar(255)
-  user_id    String   @db.VarChar(255)
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-  suite      suite    @relation(fields: [suite_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  user       User     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  suite_id String @db.VarChar(255)
+  user_id  String @db.VarChar(255)
+  suite    suite  @relation(fields: [suite_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  user     User   @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([suite_id, user_id])
 }
 
 model suite_label {
-  id         String   @id @db.VarChar(255)
-  suite_id   String   @db.VarChar(255)
-  label_id   String   @db.VarChar(255)
-  added_by   User     @relation(fields: [userId], references: [id])
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-  label      label    @relation(fields: [label_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  suite      suite    @relation(fields: [suite_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  userId     String   @db.VarChar(255)
+  suite_id String @db.VarChar(255)
+  label_id String @db.VarChar(255)
+  added_by User   @relation(fields: [userId], references: [id])
+  label    label  @relation(fields: [label_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  suite    suite  @relation(fields: [suite_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  userId   String @db.VarChar(255)
+
+  @@id([suite_id, label_id, userId])
 }
 
 model test {
-  class_name      String            @id @db.VarChar(255)
-  suite_id        String            @db.VarChar(255)
-  created_at      DateTime          @default(now())
-  updated_at      DateTime          @updatedAt
-  suite           suite             @relation(fields: [suite_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  test_comment    test_comment[]
-  test_label      test_label[]
-  test_occurrence test_occurrence[]
+  class_name           String                 @id @db.VarChar(255)
+  suite_id             String                 @db.VarChar(255)
+  suite                suite                  @relation(fields: [suite_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  test_comment         test_comment[]
+  test_label           test_label[]
+  test_occurrence      test_occurrence[]
+  build_double_failure build_double_failure[]
 }
 
 model test_comment {
-  id              String   @id @db.VarChar(255)
-  test_class_name String   @db.VarChar(255)
-  comment_id      String   @db.VarChar(255)
-  created_at      DateTime @default(now())
-  updated_at      DateTime @updatedAt
-  comment         comment  @relation(fields: [comment_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  test            test     @relation(fields: [test_class_name], references: [class_name], onDelete: NoAction, onUpdate: NoAction)
+  test_class_name String  @db.VarChar(255)
+  comment_id      String  @db.VarChar(255)
+  comment         comment @relation(fields: [comment_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  test            test    @relation(fields: [test_class_name], references: [class_name], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([test_class_name, comment_id])
 }
 
 model test_label {
-  id              String   @id @db.VarChar(255)
-  test_class_name String   @db.VarChar(255)
-  label_id        String   @db.VarChar(255)
-  added_by        User     @relation(fields: [userId], references: [id])
-  created_at      DateTime @default(now())
-  updated_at      DateTime @updatedAt
-  label           label    @relation(fields: [label_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  test            test     @relation(fields: [test_class_name], references: [class_name], onDelete: NoAction, onUpdate: NoAction)
-  userId          String   @db.VarChar(255)
+  test_class_name String @db.VarChar(255)
+  label_id        String @db.VarChar(255)
+  added_by        User   @relation(fields: [userId], references: [id])
+  label           label  @relation(fields: [label_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  test            test   @relation(fields: [test_class_name], references: [class_name], onDelete: NoAction, onUpdate: NoAction)
+  userId          String @db.VarChar(255)
+
+  @@id([test_class_name, label_id, userId])
 }
 
 model test_occurrence {
@@ -222,8 +205,6 @@ model test_occurrence {
   duration                Int
   href                    String                    @db.VarChar(255)
   ignored                 Boolean
-  created_at              DateTime                  @default(now())
-  updated_at              DateTime                  @updatedAt
   build                   build                     @relation(fields: [build_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   test                    test                      @relation(fields: [test_class_name], references: [class_name], onDelete: NoAction, onUpdate: NoAction)
   test_occurrence_comment test_occurrence_comment[]
@@ -231,38 +212,54 @@ model test_occurrence {
 }
 
 model test_occurrence_comment {
-  id                 String          @id @db.VarChar(255)
   test_occurrence_id String          @db.VarChar(255)
   comment_id         String          @db.VarChar(255)
-  created_at         DateTime        @default(now())
-  updated_at         DateTime        @updatedAt
   comment            comment         @relation(fields: [comment_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   test_occurrence    test_occurrence @relation(fields: [test_occurrence_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([test_occurrence_id, comment_id])
 }
 
 model test_occurrence_label {
-  id                 String          @id @db.VarChar(255)
   test_occurrence_id String          @db.VarChar(255)
   label_id           String          @db.VarChar(255)
   added_by           User            @relation(fields: [userId], references: [id])
-  created_at         DateTime        @default(now())
-  updated_at         DateTime        @updatedAt
   label              label           @relation(fields: [label_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   test_occurrence    test_occurrence @relation(fields: [test_occurrence_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   userId             String          @db.VarChar(255)
+
+  @@id([test_occurrence_id, label_id, userId])
 }
 
 model build_comment {
-  id         String   @id @db.VarChar(255)
   build_id   Int
-  comment_id String   @db.VarChar(255)
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
-  build      build    @relation(fields: [build_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  comment    comment  @relation(fields: [comment_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  comment_id String  @db.VarChar(255)
+  build      build   @relation(fields: [build_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  comment    comment @relation(fields: [comment_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([build_id, comment_id])
 }
 
-enum build_status {
+model build_double_failure {
+  build           build  @relation(fields: [build_id], references: [id])
+  test            test   @relation(fields: [test_class_name], references: [class_name])
+  build_id        Int
+  test_class_name String @db.VarChar(255)
+
+  @@id([build_id, test_class_name])
+}
+
+model tenant {
+  id               String           @id @db.VarChar(255)
+  password         String?          @db.VarChar(255)
+  version          String?          @db.VarChar(255)
+  name             String?          @db.VarChar(255)
+  testType         String?          @db.VarChar(255)
+  confidence_level confidence_level
+  build            build[]
+}
+
+enum build_state {
   queued
   running
   finished
@@ -285,4 +282,13 @@ enum theme {
   night
   coffee
   winter
+}
+
+enum confidence_level {
+  preview
+  prod
+  trunkpreview
+  trunkprod
+  trunkinternal
+  unknown
 }
