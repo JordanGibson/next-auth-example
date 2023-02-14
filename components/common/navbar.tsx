@@ -92,6 +92,8 @@ function ProfileWithDropdown(props: { session: Session }) {
 export default function Navbar() {
   let { data: session } = useSession();
 
+  console.log(session);
+
   const router = useRouter();
 
   let route = router.route.split("/")[1].toLowerCase();

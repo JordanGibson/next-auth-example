@@ -33,6 +33,7 @@
     "@types/react-dom": "^18.0.9",
     "blacklist": "^1.1.4",
     "chart.js": "^4.1.1",
+    "cypress": "^12.5.1",
     "daisyui": "^2.46.0",
     "faker": "^6.6.6",
     "framer-motion": "^7.6.7",

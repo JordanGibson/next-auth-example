@@ -3879,7 +3879,7 @@ cypress-social-logins@^1.14.0:
     otplib "^12.0.1"
     puppeteer "^2.1.1"
 
-cypress@*:
+cypress@*, cypress@^12.5.1:
   version "12.5.1"
   resolved "https://registry.yarnpkg.com/cypress/-/cypress-12.5.1.tgz#effdcccdd5a6187d61d497300903d4f3b5b21b6e"
   integrity sha512-ZmCmJ3lsyeOpBfh410m5+AO2CO1AxAzFBt7k6/uVbNcrNZje1vdiwYTpj2ksPKg9mjr9lR6V8tmlDNMvr4H/YQ==

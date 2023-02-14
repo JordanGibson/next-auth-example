@@ -1,13 +1,13 @@
 import useSWR from 'swr';
-import { getFetcher } from './_swrFetcher';
+import {getFetcher} from './_swrFetcher';
 import React from 'react';
-import { suite_favourite } from './api/suite';
-import { Star, StarBorderOutlined } from '@mui/icons-material';
-import { motion } from 'framer-motion';
+import {suite_favourite} from './api/suite';
+import {Star, StarBorderOutlined} from '@mui/icons-material';
+import {motion} from 'framer-motion';
 import {build_state, confidence_level} from '@prisma/client';
 import {SuiteSummary} from "./api/suite/summary/[id]";
 import classNames from "classnames";
-import moment from "moment";
+import {Spinner} from "../components/common/spinner";
 
 const FavouriteButton = ({ isFavourite }: { isFavourite: boolean }) => {
     return isFavourite ? (
@@ -40,17 +40,17 @@ function SuiteCard({ suite, onClick }: { suite: suite_favourite; onClick: () => 
     const previewBuild = data?.find(x => x.confidence_level === confidence_level.preview);
     return (
         <div className={'p-5 bg-base-200 m-3'}>
-            <div className={'flex flex-row'}>
+            <div id={"suite-title"} className={'flex flex-row'}>
                 <div>{suite.name}</div>
                 <div className={'mx-2'} onClick={onClick}>
                     <FavouriteButton isFavourite={suite.isFavourite}/>
                 </div>
             </div>
             <div className={"my-2"}>
-                <div className="stats shadow mx-5">
+                <div id={"prod-double-failure-stat"} className="stats shadow mx-5">
                     <DoubleFailureStat build={prodBuild} title={"Prod"}/>
                 </div>
-                <div className="stats shadow mx-5">
+                <div id={"preview-double-failure-stat"} className="stats shadow mx-5">
                     <DoubleFailureStat build={previewBuild} title={"Preview"}/>
                 </div>
             </div>
@@ -80,12 +80,10 @@ export default function Suites() {
         mutate,
     } = useSWR<suite_favourite[]>('/api/suite/indexed', getFetcher<suite_favourite[]>());
     if (error) {
-        console.log('Error');
         return <div>failed to load</div>;
     }
     if (isLoading) {
-        console.log('Loading');
-        return <div>loading...</div>;
+        return <Spinner/>;
     }
 
     async function onClickHandler(suite: suite_favourite) {
@@ -104,7 +102,7 @@ export default function Suites() {
         <div className={'max-w-full min-w-fit'}>
             <div className={'px-5 py-2'}>
                 {suites?.map((suite: suite_favourite) => (
-                    <SuiteCard suite={suite} onClick={() => onClickHandler(suite)} />
+                    <SuiteCard key={suite.id} suite={suite} onClick={() => onClickHandler(suite)} />
                 ))}
             </div>
         </div>

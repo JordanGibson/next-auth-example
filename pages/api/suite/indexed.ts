@@ -31,7 +31,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
             };
         });
 
-        res.send(modifiedSuites);
+        res.json(modifiedSuites);
         return;
     }
 
@@ -40,7 +40,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
             index: true
         }
     });
-    res.send(suites);
+    res.json(suites);
 };
 
 export default handler;
