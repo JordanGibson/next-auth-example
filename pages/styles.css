@@ -7,4 +7,11 @@ body {
     "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   margin: 0 auto;
+  --toastify-color-light: hsl(var(--b2));
+  --toastify-text-color-light: hsl(var(--bc));
+  --toastify-color-error: hsl(var(--er));
+  --toastify-color-success: hsl(var(--su));
+  --toastify-color-warning: hsl(var(--wa));
+  --toastify-color-info: hsl(var(--in));
+  --toastify-toast-width: width / 4;
 }

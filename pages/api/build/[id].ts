@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import { booleanLiteral } from "@babel/types";
+import prisma from "../../../client";
 
 export default async function handler(
     req: NextApiRequest,

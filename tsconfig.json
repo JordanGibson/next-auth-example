@@ -10,6 +10,7 @@
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
+    "strictNullChecks": true,
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
     "esModuleInterop": true,
@@ -34,9 +35,12 @@
     "**/*.ts",
     "**/*.tsx",
     "pages/api/auth/signin.js",
-    ".next/types/**/*.ts"
-, "lambda/lambda.ts"  ],
+    ".next/types/**/*.ts",
+    "lambda/lambda.ts",
+    "node_modules/ts-jest/globals.d.ts"
+  ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "lambda"
   ]
 }

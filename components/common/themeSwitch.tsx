@@ -1,6 +1,6 @@
-import {Palette, PaletteOutlined} from "@mui/icons-material";
+import {PaletteOutlined} from "@mui/icons-material";
 import {useSession} from "next-auth/react";
-import {session} from "next-auth/core/routes";
+import {Endpoints} from "../../pages/api/_endpoints";
 
 function ThemeCard({theme, onClick}: { theme: string, onClick: () => void }) {
     return (
@@ -33,7 +33,7 @@ function ThemeCard({theme, onClick}: { theme: string, onClick: () => void }) {
 const putThemeForUser = async (theme: string, userId?: string) => {
     console.log("putThemeForUser", theme);
     if (!!userId) {
-        const res = await fetch(`/api/user/theme`, {
+        const res = await fetch(Endpoints.userTheme, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",

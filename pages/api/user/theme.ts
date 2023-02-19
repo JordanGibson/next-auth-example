@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { booleanLiteral } from "@babel/types";
 import {unstable_getServerSession} from "next-auth/next";
 import {authOptions} from "../auth/[...nextauth]";
+import prisma from "../../../client";
 
 export default async function handler(
     req: NextApiRequest,

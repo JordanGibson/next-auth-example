@@ -1,14 +1,16 @@
-import type {Prisma} from '@prisma/client';
-import type {IndexedBuild} from './types';
-import type {Build, TestOccurrence, TestOccurrences} from 'teamcity-client';
+import type { Prisma } from '@prisma/client';
+import type { IndexedBuild } from './types';
+import type { Build, TestOccurrence } from 'teamcity-client';
 import moment from 'moment/moment';
-import {getTenantFromBuildComment} from './tenant';
+import { getTenantFromBuildComment } from './tenant';
 import prisma from './prisma';
-import {stripFailedFromClassName} from './utils';
-import mapResponseToTestOccurrenceEntities, {hasTestOccurrences} from "./entityMappers/testOccurrenceMapper";
-import mapResponseToDoubleFailureEntities from "./entityMappers/doubleFailureMapper";
-import mapBuildsToEntities from "./entityMappers/buildMapper";
-import TeamcityFacade from "./teamcity/teamcityFacade";
+import { stripFailedFromClassName } from './utils';
+import mapResponseToTestOccurrenceEntities, {
+    hasTestOccurrences,
+} from './entityMappers/testOccurrenceMapper';
+import mapResponseToDoubleFailureEntities from './entityMappers/doubleFailureMapper';
+import mapBuildsToEntities from './entityMappers/buildMapper';
+import TeamcityFacade from './teamcity/teamcityFacade';
 
 export async function storeBuild({
     build,
@@ -94,7 +96,9 @@ async function storeTestsFromOccurrences(
 
 async function indexBuild(build: Prisma.buildCreateManyInput): Promise<IndexedBuild> {
     const buildResponse = await TeamcityFacade.getInstance().getBuild(build.id);
-    const testOccurrencesResponse = await TeamcityFacade.getInstance().getAllTestOccurrences(build.id);
+    const testOccurrencesResponse = await TeamcityFacade.getInstance().getAllTestOccurrences(
+        build.id
+    );
     if (hasTestOccurrences(testOccurrencesResponse)) {
         await storeTestsFromOccurrences(testOccurrencesResponse.testOccurrence, build);
     }
@@ -103,7 +107,7 @@ async function indexBuild(build: Prisma.buildCreateManyInput): Promise<IndexedBu
         const startMoment = moment(response.startDate, 'YYYYMMDDTHHmmssZ');
         const finishMoment = moment(response.finishDate, 'YYYYMMDDTHHmmssZ');
 
-        const startDate = startMoment.isValid() ? startMoment.toDate() : "";
+        const startDate = startMoment.isValid() ? startMoment.toDate() : '';
         const finishDate = finishMoment.isValid() ? finishMoment.toDate() : undefined;
 
         const duration: number =
@@ -133,9 +137,9 @@ async function indexBuild(build: Prisma.buildCreateManyInput): Promise<IndexedBu
     try {
         return constructIndexedBuild(buildResponse);
     } catch (err) {
-        console.log("Error occurred while indexing build " + buildResponse.id);
-        console.log("Build href: " + buildResponse.href);
-        console.log("Test Occurrences href: " + testOccurrencesResponse.href)
+        console.log('Error occurred while indexing build ' + buildResponse.id);
+        console.log('Build href: ' + buildResponse.href);
+        console.log('Test Occurrences href: ' + testOccurrencesResponse.href);
         console.error(err);
         process.exit(1);
     }
