@@ -1,24 +1,16 @@
-import type { Prisma } from '@prisma/client';
-import type { IndexedBuild } from './types';
-import type { Build, TestOccurrence } from 'teamcity-client';
+import type {Prisma} from '@prisma/client';
+import type {IndexedBuild} from './types';
+import type {Build, TestOccurrence} from 'teamcity-client';
 import moment from 'moment/moment';
-import { getTenantFromBuildComment } from './tenant';
+import {getTenantFromBuildComment} from './tenant';
 import prisma from './prisma';
-import { stripFailedFromClassName } from './utils';
-import mapResponseToTestOccurrenceEntities, {
-    hasTestOccurrences,
-} from './entityMappers/testOccurrenceMapper';
+import {stripFailedFromClassName} from './utils';
+import mapResponseToTestOccurrenceEntities, {hasTestOccurrences,} from './entityMappers/testOccurrenceMapper';
 import mapResponseToDoubleFailureEntities from './entityMappers/doubleFailureMapper';
 import mapBuildsToEntities from './entityMappers/buildMapper';
 import TeamcityFacade from './teamcity/teamcityFacade';
 
-export async function storeBuild({
-    build,
-    details,
-    tenant,
-    test_occurrences,
-    double_failures,
-}: Awaited<IndexedBuild>) {
+export async function storeBuild({build, details, double_failures, tenant, test_occurrences}: Awaited<IndexedBuild>) {
     try {
         await prisma.build.upsert({
             where: {
@@ -64,8 +56,39 @@ export async function storeBuild({
                 },
             },
             update: {
-                ...build,
-            },
+                build_details: {
+                    update: details
+                },
+                test_occurrence: {
+                    createMany: {
+                        data: test_occurrences,
+                        skipDuplicates: true,
+                    },
+                },
+                build_double_failure: {
+                    createMany: {
+                        data: double_failures,
+                        skipDuplicates: true
+                    }
+                },
+                tenant: tenant
+                    ? {
+                        connectOrCreate: {
+                            where: {
+                                id: tenant.id,
+                            },
+                            create: tenant,
+                        },
+                    }
+                    : undefined,
+                state: build.state,
+                status: build.status,
+                suite: {
+                    connect: {
+                        id: build.suite_id
+                    }
+                }
+            }
         });
     } catch (e) {
         console.log('during build', build);
@@ -75,7 +98,18 @@ export async function storeBuild({
 
 export async function getBuilds(suiteId: string): Promise<IndexedBuild[]> {
     const buildsResponse = await TeamcityFacade.getInstance().getAllBuildsForSuite(suiteId);
-    const builds = mapBuildsToEntities(buildsResponse, suiteId);
+    const existingBuildIds = (await prisma.build.findMany({
+        where: {
+            AND: {
+                state: 'finished',
+            }
+        },
+        select: {
+            id: true
+        }
+    })).map(x => x.id);
+    const buildsNotIndexed = buildsResponse.build.filter(x => !existingBuildIds.some(y => y == x.id));
+    const builds = mapBuildsToEntities(buildsNotIndexed, suiteId);
     return await Promise.all(builds.map(indexBuild));
 }
 
@@ -107,7 +141,7 @@ async function indexBuild(build: Prisma.buildCreateManyInput): Promise<IndexedBu
         const startMoment = moment(response.startDate, 'YYYYMMDDTHHmmssZ');
         const finishMoment = moment(response.finishDate, 'YYYYMMDDTHHmmssZ');
 
-        const startDate = startMoment.isValid() ? startMoment.toDate() : '';
+        const startDate = startMoment.isValid() ? startMoment.toDate() : undefined;
         const finishDate = finishMoment.isValid() ? finishMoment.toDate() : undefined;
 
         const duration: number =

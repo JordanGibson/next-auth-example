@@ -7,7 +7,7 @@ export default function mapTestOccurrencesToEntities(testOccurrences: TestOccurr
     return hasTestOccurrences(testOccurrences) ? testOccurrences.testOccurrence.map(mapTestOccurrenceToEntity): [];
 }
 
-export const hasTestOccurrences = (testOccurrences: TestOccurrences) => testOccurrences.count && testOccurrences.count >= 1;
+export const hasTestOccurrences = (testOccurrences: TestOccurrences) => testOccurrences?.testOccurrence && testOccurrences?.testOccurrence.length >= 1;
 export function mapTestOccurrenceToEntity(testOccurrence: TestOccurrence): Prisma.test_occurrenceCreateManyBuildInput {
     return ({
         id: testOccurrence.id,
@@ -16,5 +16,7 @@ export function mapTestOccurrenceToEntity(testOccurrence: TestOccurrence): Prism
         duration: testOccurrence.duration ?? 0,
         href: testOccurrence.href,
         ignored: testOccurrence.ignored ?? false,
+        order: parseInt(testOccurrence.runOrder),
+        details: testOccurrence.details ?? null,
     });
 }

@@ -205,6 +205,8 @@ model test_occurrence {
   duration                Int
   href                    String                    @db.VarChar(255)
   ignored                 Boolean
+  order                   Int
+  details                 String?
   build                   build                     @relation(fields: [build_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
   test                    test                      @relation(fields: [test_class_name], references: [class_name], onDelete: NoAction, onUpdate: NoAction)
   test_occurrence_comment test_occurrence_comment[]
@@ -271,17 +273,11 @@ enum theme {
   light
   dark
   cupcake
-  synthwave
   halloween
-  aqua
-  pastel
-  black
-  luxury
   dracula
   acid
   night
   coffee
-  winter
 }
 
 enum confidence_level {

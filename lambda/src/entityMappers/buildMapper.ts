@@ -1,8 +1,8 @@
 import type {Build, Builds} from "teamcity-client";
 import {build_state} from "@prisma/client";
 
-export default function mapBuildsToEntity(build: Builds, suiteId: string) {
-    return build.build!.map(build => mapBuildToEntity(build, suiteId));
+export default function mapBuildsToEntity(build: Build[], suiteId: string) {
+    return build.map(build => mapBuildToEntity(build, suiteId));
 }
 export function mapBuildToEntity(build: Build, suiteId: string) {
     return {

@@ -24,6 +24,6 @@ export default class TeamcityFacade {
     }
 
     public async getAllTestOccurrences(buildId: number): Promise<TestOccurrences> {
-        return await this.testOccurrenceApi.getAllTestOccurrences(buildWithIdAndCount(buildId));
+        return await this.testOccurrenceApi.getAllTestOccurrences(buildWithIdAndCount(buildId), "count,passed,failed,ignored,testOccurrence(id,count,name,ignored,status,duration,href,runOrder,details)");
     }
 }

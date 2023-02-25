@@ -53,17 +53,11 @@ const ThemeSwitch = () => {
         "light",
         "dark",
         "cupcake",
-        "synthwave",
         "halloween",
-        "aqua",
-        "pastel",
-        "black",
-        "luxury",
         "dracula",
         "acid",
         "night",
         "coffee",
-        "winter",
     ];
     const session = useSession();
     return (

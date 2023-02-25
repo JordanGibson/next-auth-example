@@ -3,7 +3,7 @@ import Suites from '../../pages/suites';
 import { Endpoints } from '../../pages/api/_endpoints';
 import { Fixtures } from '../../cypress/fixtures/_fixtures';
 import { IndexedSuitesResponseType } from '../../pages/api/suite/indexed';
-import {toast} from "react-toastify";
+import { toast } from 'react-toastify';
 
 describe('suites component', () => {
     beforeEach(() => {
@@ -12,6 +12,8 @@ describe('suites component', () => {
         }).as('getSummary');
 
         cy.intercept(Endpoints.indexedSuites, { fixture: Fixtures.indexedSuites }).as('getIndexed');
+
+        cy.viewport('macbook-13')
     });
 
     it('should show stats when successfully loaded component', () => {
@@ -37,57 +39,64 @@ describe('suites component', () => {
     describe('favourite', () => {
         beforeEach(() => {
             cy.intercept(Endpoints.favouriteSuite, {}).as('favouriteSuite');
+            cy.spy(toast, 'error');
         });
 
-        it('should set suite as favourite if user clicks favourite button and currently unfavourited', () => {
-            mountComponent();
+        describe('toggle works', () => {
+            it('should set suite as favourite if user clicks favourite button and currently unfavourited', () => {
+                mountComponent();
 
-            cy.fixture(Fixtures.indexedSuites).then((suites: IndexedSuitesResponseType) => {
-                suites[0].isFavourite = true;
-                cy.intercept(Endpoints.indexedSuites, suites).as('getIndexedWithFavourite');
+                cy.fixture(Fixtures.indexedSuites).then((suites: IndexedSuitesResponseType) => {
+                    suites[0].isFavourite = true;
+                    cy.intercept(Endpoints.indexedSuites, suites).as('getIndexedWithFavourite');
+                });
+
+                cy.get('[data-testid="StarBorderOutlinedIcon"]').should('be.visible');
+
+                cy.get('#Smart_WebSystemTests_Others-favouriteButton').click();
+
+                cy.wait('@favouriteSuite').its('request.body').should('deep.equal', {
+                    suite: 'Smart_WebSystemTests_Others',
+                    isFavourite: true,
+                });
+
+                cy.wait('@getIndexedWithFavourite');
+
+                cy.get('[data-testid="StarIcon"]').should('be.visible');
             });
 
-            cy.get('[data-testid="StarBorderOutlinedIcon"]').should('be.visible');
+            it('should unfavourite suite if user clicks favourite button and currently favourited', () => {
+                cy.fixture(Fixtures.indexedSuites).then((suites: IndexedSuitesResponseType) => {
+                    suites[0].isFavourite = true;
+                    cy.intercept(Endpoints.indexedSuites, suites).as('getIndexed');
+                });
 
-            cy.get('#Smart_WebSystemTests_Others-favouriteButton').click();
+                mountComponent();
 
-            cy.wait('@favouriteSuite').its('request.body').should('deep.equal', {
-                suite: 'Smart_WebSystemTests_Others',
-                isFavourite: true,
+                cy.get('[data-testid="StarIcon"]').should('be.visible');
+
+                cy.intercept(Endpoints.indexedSuites, { fixture: Fixtures.indexedSuites }).as(
+                    'getIndexed'
+                );
+
+                cy.get('#Smart_WebSystemTests_Others-favouriteButton').click();
+
+                cy.wait('@favouriteSuite').its('request.body').should('deep.equal', {
+                    suite: 'Smart_WebSystemTests_Others',
+                    isFavourite: false,
+                });
+
+                cy.wait('@getIndexed');
+
+                cy.get('[data-testid="StarBorderOutlinedIcon"]').should('be.visible');
             });
 
-            cy.wait('@getIndexedWithFavourite');
-
-            cy.get('[data-testid="StarIcon"]').should('be.visible');
+            afterEach(() => {
+                expect(toast.error).to.not.be.called;
+            });
         });
 
-        it('should unfavourite suite if user clicks favourite button and currently favourited', () => {
-            cy.fixture(Fixtures.indexedSuites).then((suites: IndexedSuitesResponseType) => {
-                suites[0].isFavourite = true;
-                cy.intercept(Endpoints.indexedSuites, suites).as('getIndexed');
-            });
-
-            mountComponent();
-
-            cy.get('[data-testid="StarIcon"]').should('be.visible');
-
-            cy.intercept(Endpoints.indexedSuites, { fixture: Fixtures.indexedSuites }).as(
-                'getIndexed'
-            );
-
-            cy.get('#Smart_WebSystemTests_Others-favouriteButton').click();
-
-            cy.wait('@favouriteSuite').its('request.body').should('deep.equal', {
-                suite: 'Smart_WebSystemTests_Others',
-                isFavourite: false,
-            });
-
-            cy.wait('@getIndexed');
-
-            cy.get('[data-testid="StarBorderOutlinedIcon"]').should('be.visible');
-        });
-
-        it.only('should display an error toast when it fails to update favourites', () => {
+        it('should display an error toast when it fails to update favourites', () => {
             mountComponent();
 
             cy.intercept(Endpoints.favouriteSuite, { forceNetworkError: true }).as(
@@ -95,6 +104,10 @@ describe('suites component', () => {
             );
 
             cy.get('#Smart_WebSystemTests_Others-favouriteButton').click();
+
+            cy.wait('@favouriteSuite').then(() => {
+                expect(toast.error).to.be.calledWith('An error occurred while updating favourites');
+            });
         });
     });
 
@@ -106,6 +119,6 @@ describe('suites component', () => {
 
         cy.wait('@getIndexed');
 
-        toast("Test")
+        toast('Test');
     }
 });

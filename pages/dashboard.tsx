@@ -15,7 +15,7 @@ function SuiteCard({suite}: { suite: suite }) {
         data,
         error,
         isLoading,
-    } = useSWR("/api/build/" + suite.id, getFetcher<(build & { build_details: build_details })[]>());
+    } = useSWR("/api/builds/" + suite.id, getFetcher<(build & { build_details: build_details })[]>());
 
     const labelToCssClass = (label?: string): string => {
         switch (label?.toLowerCase()) {

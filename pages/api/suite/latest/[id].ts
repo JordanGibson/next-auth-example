@@ -13,14 +13,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 }
 
-type Build = {
+export type Build = {
     id: number;
     state: build_state;
-    status?: string;
+    status: string | undefined;
     double_failures: string[];
-    start_date?: number;
-    end_date?: number;
+    start_date?: Date;
+    end_date?: Date;
     duration?: number;
+    confidence_level?: string;
 };
 
 export type LatestBuildsForSuiteResponseType = {
@@ -31,7 +32,7 @@ export type LatestBuildsForSuiteResponseType = {
 async function get(req: NextApiRequest, res: NextApiResponse) {
     const { id } = req.query;
 
-    async function getBuildForConfidenceLevel(level: confidence_level) {
+    async function getBuildForConfidenceLevel(level: confidence_level): Promise<Build> {
         const build = await prisma.build.findFirstOrThrow({
             where: {
                 AND: {
@@ -76,8 +77,10 @@ async function get(req: NextApiRequest, res: NextApiResponse) {
             state: build.state,
             status: build.status ?? undefined,
             double_failures: build.build_double_failure.flatMap(x => x.test_class_name),
-            start_date: build.build_details?.start_date?.getDate(),
+            start_date: build.build_details?.start_date ?? undefined,
+            end_date: build.build_details?.end_date ?? undefined,
             duration: build.build_details?.duration ?? undefined,
+            confidence_level: build.tenant?.confidence_level
         };
     }
 

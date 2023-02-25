@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import prisma from '../../../client';
+import {build, build_details, suite} from "@prisma/client";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     switch (req.method) {
@@ -15,9 +16,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 }
 
+export type GetSuiteResponseType = suite;
+
 async function get(req: NextApiRequest, res: NextApiResponse) {
     const { id } = req.query;
-    const suite = await prisma.suite.findUnique({
+    const suite: GetSuiteResponseType | null = await prisma.suite.findUnique({
         where: {
             id: id as string,
         },

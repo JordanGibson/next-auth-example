@@ -1,8 +1,7 @@
 import {env} from 'process';
-import {BuildTypeApiFactory, BuildTypes, TestOccurrence, TestOccurrenceApiFactory,} from 'teamcity-client';
+import {BuildTypeApiFactory, BuildTypes} from 'teamcity-client';
 import prisma from './src/prisma';
-import type {suite} from '@prisma/client';
-import type {Prisma} from "@prisma/client";
+import type {Prisma, suite} from '@prisma/client';
 import {getBuilds, storeBuild} from './src/build';
 
 const buildTypeApi = BuildTypeApiFactory();

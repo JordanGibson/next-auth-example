@@ -43,7 +43,7 @@ export default function ThemedLineChart({
                                             getChartOptions,
                                             labelToCssClass,
     className
-                                        }: { getChartData: () => ChartData<'line'>, getChartOptions?: () => ChartOptions<'line'>, labelToCssClass: (cssClass?: string) => string, className: string }): JSX.Element {
+                                        }: { getChartData: () => ChartData<'line'>, getChartOptions?: () => ChartOptions<'line'>, labelToCssClass: (cssClass?: string) => string, className?: string }): JSX.Element {
     if (!getChartOptions) {
         getChartOptions = defaultChartOptions;
     }
