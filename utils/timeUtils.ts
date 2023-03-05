@@ -13,7 +13,7 @@ export function formatDuration(elapsedTime: number | undefined, shortForm: boole
     let result = '';
     if (hours > 0) result += `${hours} ${toShortForm('hours', shortForm)} `;
     if (minutes > 0) result += `${minutes} ${toShortForm('minutes', shortForm)} `;
-    if (!hours && seconds > 0) result += `${seconds} ${toShortForm('seconds', shortForm)} `;
+    if (!hours && seconds > 0) result += `${seconds} ${toShortForm('seconds', shortForm)}`;
 
     if (result == '') result = '< 1ms';
 

@@ -19,10 +19,10 @@ import {
     SortingState,
     useReactTable,
 } from '@tanstack/react-table';
-import _default from 'chart.js/dist/core/core.interaction';
-import x = _default.modes.x;
 
-function getColumns<TValue, TAccessor, TReturn>(columnHelper: ColumnHelper<GetBuildTableDataResponseType>) {
+function getColumns<TValue, TAccessor, TReturn>(
+    columnHelper: ColumnHelper<GetBuildTableDataResponseType>
+) {
     return [
         columnHelper.accessor(row => row.displayName, {
             id: 'Name',
@@ -31,12 +31,34 @@ function getColumns<TValue, TAccessor, TReturn>(columnHelper: ColumnHelper<GetBu
         }),
         columnHelper.accessor(row => row.duration, {
             id: 'Duration',
-            cell: info => <i>{info.getValue()}</i>,
+            cell: info => {
+                return (
+                    <div>
+                        {info.getValue().map(x => (
+                            <i>
+                                {x}
+                                <br />
+                            </i>
+                        ))}
+                    </div>
+                );
+            },
             header: () => <span>Duration</span>,
         }),
         columnHelper.accessor(row => row.order, {
             id: 'Order',
-            cell: info => <i>{info.getValue()}</i>,
+            cell: info => {
+                return (
+                    <div>
+                        {info.getValue().map(x => (
+                            <i>
+                                {x}
+                                <br />
+                            </i>
+                        ))}
+                    </div>
+                );
+            },
             header: () => <span>Order</span>,
         }),
     ];
@@ -49,6 +71,7 @@ function BuildStatistics(props: { build: Build; data: GetBuildResponseType }) {
         { displayName: 'Passed', data: props.data.passed_first_execution },
         { displayName: 'Ignored', data: props.data.ignored },
         { displayName: 'Single failures - no re-run', data: props.data.single_failures },
+        { displayName: 'Other', data: props.data.other },
     ];
     const [activeTab, setActiveTab] = useState(resultTypes[0].displayName);
     const [sorting, setSorting] = useState<SortingState>([]);
@@ -115,8 +138,8 @@ function BuildStatistics(props: { build: Build; data: GetBuildResponseType }) {
                             })}
                     </div>
                     <div className={'w-full border rounded my-2'}>
-                        <div className={'w-full overflow-scroll'}>
-                            <table className={'w-full max-h-1/2 overflow-scroll border-collapse'}>
+                        <div className={'w-full'}>
+                            <table className={'w-full border-collapse'}>
                                 <thead>
                                     {table.getFlatHeaders().map(header => (
                                         <th
@@ -151,23 +174,28 @@ function BuildStatistics(props: { build: Build; data: GetBuildResponseType }) {
                                 <tbody>
                                     {table.getRowModel().rows.map(row => {
                                         return (
-                                            <tr key={row.id} className={"hover:bg-base-200 cursor-pointer"}>
-                                                {row.getVisibleCells().map(cell => {
-                                                    return (
-                                                        <td
-                                                            className={
-                                                                'max-w-[999px] break-all border-y p-2'
-                                                            }
-                                                            key={cell.id}
-                                                        >
-                                                            {flexRender(
-                                                                cell.column.columnDef.cell,
-                                                                cell.getContext()
-                                                            )}
-                                                        </td>
-                                                    );
-                                                })}
-                                            </tr>
+                                            <>
+                                                <tr
+                                                    key={row.id}
+                                                    className={'hover:bg-base-200 cursor-pointer'}
+                                                >
+                                                    {row.getVisibleCells().map(cell => {
+                                                        return (
+                                                            <td
+                                                                className={
+                                                                    'max-w-[999px] break-all border-y p-2'
+                                                                }
+                                                                key={cell.id}
+                                                            >
+                                                                {flexRender(
+                                                                    cell.column.columnDef.cell,
+                                                                    cell.getContext()
+                                                                )}
+                                                            </td>
+                                                        );
+                                                    })}
+                                                </tr>
+                                            </>
                                         );
                                     })}
                                 </tbody>
